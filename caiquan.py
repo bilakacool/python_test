@@ -343,7 +343,7 @@ def denglu():
             xing()
             print('用户%s登录成功，开始游戏' % zhanghao)
             kaishi(zhanghao)
-            break
+            continue
         if denglu == 3:
             xing()
             print('进入游客模式，开始游戏')
