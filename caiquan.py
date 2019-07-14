@@ -81,13 +81,13 @@ def bangdan(mingzi, gaofen, gaolian):
 
     # 首次创建榜单文件
     if 'bangdan.txt' not in os.listdir(os.getcwd()):
-        bang = open('bangdan.txt', 'a')
+        bang = open('./bangdan.txt', 'a')
         bang.write('名次排行\t玩家名字\t最高得分\t最高连胜\n')
         bang.close()
 
     # 将榜单数据写入榜单文件
-    bang = open('bangdan.txt', 'a')
-    bang.write('无\t\t' + bangdan[0] + '\t\t' + bangdan[1] + '\t\t\t' + bangdan[2] + '\n')
+    bang = open('./bangdan.txt', 'a')
+    bang.write('无\t\t' + bangdan[0] + '\t\t' + bangdan[1] + '\t\t' + bangdan[2] + '\n')
     bang.close()
 
 
@@ -96,33 +96,30 @@ def paixu():
     """将榜单中数据按照得分情况进行排序"""
 
     # 将排行榜数据存入列表中
-    bang = open('bangdan.txt', 'r')
+    bang = open('./bangdan.txt', 'r')
     id = 0
     bang2 = []
     bang3 = []
     for i in bang.readlines():
 
-        # 将排行榜数据从字符串转换为列表
-        bang1 = i.split('\t')
-
         # 将排行榜数据列表再存入大列表中
         if id != 0:
-            bang2.append(bang1)
+            bang2.append(i.split('\t'))
 
         # 将榜单的首行字段列表保存
         else:
-            bang3 = bang1
+            bang3 = i.split('\t')
         id += 1
 
     # 将玩家数据列表按照分数从高到低排序
     for j in range(len(bang2)):
         for k in range(len(bang2)):
-            if int(bang2[j][4]) > int(bang2[k][4]):
+            if int(bang2[j][4][:-1]) > int(bang2[k][4][:-1]):
                 bang2[j], bang2[k] = bang2[k], bang2[j]
     bang.close()
 
     # 将排序后的玩家数据写入游戏结果
-    bang = open('bangdan.txt', 'w')
+    bang = open('./bangdan.txt', 'w')
 
     # 写入首行字段
     bang.write(bang3[0]+'\t'+bang3[1]+'\t'+bang3[2]+'\t'+bang3[3])
@@ -130,7 +127,7 @@ def paixu():
     # 写入玩家数据和名次
     for i in range(len(bang2)):
         n = str(i+1)
-        bang.write('第'+n+'名'+'\t\t'+bang2[i][2]+'\t\t'+bang2[i][4]+'\t\t\t'+bang2[i][7])
+        bang.write('第'+n+'名'+'\t\t'+bang2[i][2]+'\t\t'+bang2[i][4]+'\t\t'+bang2[i][6])
     bang.close()
 
 
@@ -145,7 +142,7 @@ def beifen():
         os.mkdir('beifen')
 
     # 创建以当前时间命名备份文件
-    beifen = open('bangdan.txt', 'rb')
+    beifen = open('./bangdan.txt', 'rb')
     a = time.strftime('%Y-%m-%d %H.%M.%S')
     beifen1 = open('./beifen/bangdan%s.txt' % a, 'wb')
 
@@ -192,9 +189,7 @@ def kaishi(mingzi='游客', defen=3, changci=10, liansheng=0, gaolian=0):
 
     # 定义场次
     changci1 = changci
-
-    # 进入游戏首页
-    print('*' * 10 + '猜拳小游戏' + '*' * 10, end="\n\n")
+    xing()
     print('游戏规则：进行%d场游戏后结束\n本场游戏的初始分为：%d分' % (changci, defen))
 
     # 进入游戏判断
@@ -287,7 +282,7 @@ def kaishi(mingzi='游客', defen=3, changci=10, liansheng=0, gaolian=0):
         mingzi = str(mingzi)
         gaofen = str(gaofen)
         gaolian = str(gaolian)
-        bangdan(mingzi, gaofen, gaolian + '连胜')
+        bangdan(mingzi, gaofen+'分', gaolian + '连胜')
         xing()
         paixu()
         beifen()
@@ -298,7 +293,147 @@ def kaishi(mingzi='游客', defen=3, changci=10, liansheng=0, gaolian=0):
     print('\n游戏结束')
 
 
-kaishi()
+# 主页界面
+def zhuye():
+    """输入主页操作，返回3为游客模式，返回1为登陆账号，返回2为注册账号，返回4登录最近的账号，返回0退出游戏,返回-1输入错误"""
+
+    xing()
+    # 输入登陆操作
+    zhuye = input('登录账号请按1\n注册账号请按2\n游客模式请按3\n快速登录请按4\n退出游戏请按0\n请输入：')
+    if zhuye == '3':
+        return 3
+    if zhuye == '1':
+        return 1
+    if zhuye == '2':
+        return 2
+    if zhuye == '0':
+        return 0
+    if zhuye == '4':
+        return 4
+    else:
+        return -1
 
 
+# 进入游戏
+def denglu():
+    """登录并进入游戏"""
+    # 进入游戏首页
+    print('*' * 10 + '猜拳小游戏' + '*' * 10, end="\n\n")
+
+    zhanghao = 0
+    while 1:
+        denglu = zhuye()
+        if denglu == -1:
+            print('输入错误，请重新输入')
+            continue
+        if denglu == 0:
+            xing()
+            print('\n退出游戏')
+            break
+        if denglu == 2:
+            while zhuce(5) == 0:
+                continue
+            continue
+        if denglu == 1:
+            zhanghao = yonghu()
+            if zhanghao == 0:
+                xing()
+                print('用户名或密码不正确 ')
+                continue
+            xing()
+            print('用户%s登录成功，开始游戏' % zhanghao)
+            kaishi(zhanghao)
+            break
+        if denglu == 3:
+            xing()
+            print('进入游客模式，开始游戏')
+            kaishi()
+            continue
+        if denglu == 4:
+            if zhanghao == 0:
+                xing()
+                print('最近没有登录账号')
+                continue
+            xing()
+            print('用户%s登录成功，开始游戏' % zhanghao)
+            kaishi(zhanghao)
+            continue
+
+
+# 账号注册
+def zhuce(long):
+    """输入用户名最大长度，注册账号，并将账号存储在文本中"""
+    import os
+    xing()
+
+    # 输入用户名
+    zhanghao = input('请输入注册用户名：')
+
+    # 账号存储文档不存在时创建文档
+    if 'yonghu.txt' not in os.listdir(os.getcwd()):
+        yonghu = open('yonghu.txt', 'w')
+        yonghu.close()
+
+    # 将文档中的用户名集中到一个列表中
+    yonghu = open('yonghu.txt', 'r')
+    a = []
+    for i in yonghu.readlines():
+        a.extend(i.split('\t'))
+        a = a[::2]
+    yonghu.close()
+
+    # 如果用户名存在则需要重新输入
+    if zhanghao in a:
+        xing()
+        print('此账号已存在,请重新输入')
+        return 0
+
+    # 用户名过长时需要重新输入
+    if len(zhanghao) > long:
+        xing()
+        print('用户名过长，请重新输入')
+        return 0
+
+    # 输入注册账号的密码
+    mima = input('请输入注册密码：')
+
+    # 确认用户名和密码
+    queren = input('注册的用户为%s,密码为%s,确认请按1：' % (zhanghao, mima))
+    if queren == '1':
+        yonghu = open('yonghu.txt', 'a')
+        yonghu.write('%s\t%s\n' % (zhanghao, mima))
+        yonghu.close()
+    else:
+        xing()
+        print('注册已取消')
+    return
+
+
+# 账号登录
+def yonghu():
+    """登陆账号"""
+
+    # 输入用户名和密码
+    xing()
+    zhanghao = input('请输入用户名：')
+    mima = input('请输入密码：')
+
+    # 将用户名和密码组合成指定格式的字符串
+    a = zhanghao+'\t'+mima+'\n'
+
+    # 用户名或密码不正确判断
+    if a not in open('yonghu.txt', 'r').readlines():
+        return 0
+    return zhanghao
+
+
+
+
+
+
+
+
+
+
+denglu()
 
