@@ -1,7 +1,6 @@
 # coding=utf-8
 
 
-# 递归删除文件夹
 def shanchu(wenjianjia):
     """递归删除一个文件夹"""
     import os
@@ -16,84 +15,91 @@ def shanchu(wenjianjia):
     os.rmdir(wenjianjia)
 
 
-# 复制文件old到new中
+def fuben(old, new, fuben='副本'):
+    """如果new文件夹中有old文件，则将文件名返回old-fuben"""
+    import os
+
+    oldname = old.split('/')[-1]
+    while oldname in os.listdir(new):
+        oldname = oldname+'-'+fuben
+    return oldname
+
+
+def geshi(wenjian):
+    """将文件名调整为统一格式"""
+    wenjian = wenjian.replace('\\', '/')
+    if wenjian[-1] == '/':
+        wenjian = wenjian[:-1]
+    return wenjian
+
+
+def fuzhiwenjian(old, new):
+    """将文件old复制到new中"""
+    import os
+
+    wenjian = old.split('/')[-1]
+    if wenjian in os.listdir(new):
+        return
+    oldwenjian = open(old, 'rb')
+    newwenjian = open(new + '/%s' % wenjian, 'wb')
+    newwenjian.writelines(oldwenjian)
+    oldwenjian.close()
+    newwenjian.close()
+    print('%s文件复制成功' % wenjian)
+
+
 def fuzhi(old, new):
     """复制文件old或文件夹old到文件夹new中"""
-
     import os
     from pathlib import Path
 
     # 调整old和new的格式
-    old, new = old.replace('\\', '/'), new.replace('\\', '/')
-    if new[-1] == '/':
-        new = new[:-1]
-    if old[-1] == '/':
-        old = old[:-1]
+    old = geshi(old)
+    new = geshi(new)
 
     # 检查old和new是否存在
     if (not os.path.isfile(old) and not os.path.isdir(old)) or (not os.path.isdir(new) and not os.path.isfile(new)):
         print('该文件不存在')
         return
 
-    # 文件名字被占用时的名字
-    fuben = '-副本'
-
     # 如果old是文件则直接复制到new
     if Path(old).is_file():
-        wenjian = old.split('/')[-1]
-        oldwenjian = open(old, 'rb')
-        newwenjian = open(new + '/%s' % wenjian, 'wb')
-        newwenjian.writelines(oldwenjian)
-        oldwenjian.close()
-        newwenjian.close()
-        print('%s文件复制成功' % wenjian)
+        fuzhiwenjian(old, new)
         return
 
     # 如果new在old目录中会造成死循环
     if old in new or new == old:
 
-        # 将old中文件复制到old同目录中
+        # 将old中文件复制到old同目录中,再将复制的文件复制到new中，再删除中间文件
         newnew = old[:-(old[::-1].find('/')+1)]
         newold = fuzhi(old, newnew)
-
-        # 将复制的old文件复制到new中
         oldnew = fuzhi(newold, new)
-
-        # 名字重复则建立副本
-        oldname = old.split('/')[-1]
-        while oldname in os.listdir(new):
-            oldname = oldname + fuben
+        shanchu(newold)
 
         # 将new中的文件名修改为old同名，如果old在new中存在则修改为副本名字
+        oldname = fuben(old, new)
         os.rename(oldnew, new+'/'+oldname)
-
-        # 删除中间文件
-        shanchu(newold)
         return
 
-    # 如果old文件夹已存在则创建新名字的文件夹
-    oldname = old.split('/')[-1]
-    while oldname in os.listdir(new):
-        oldname = oldname + fuben
-    os.mkdir(new+'/'+oldname)
+    else:
+        # 在new中创建old文件夹，如果old文件夹已存在则创建副本文件夹
+        oldname = fuben(old, new)
+        os.mkdir(new+'/'+oldname)
 
-    # 如果old是文件夹则遍历路径中所有文件并复制
-    for wenjian in os.listdir(old+'/'):
+        # 如果old是文件夹则遍历路径中所有文件并复制
+        for wenjian in os.listdir(old+'/'):
 
-        # 如果遍历对象是文件则拷贝文件
-        if Path(old+'/'+wenjian).is_file():
-            oldwenjian = open('%s/%s' % (old, wenjian), 'rb')
-            newwenjian = open(new+'/%s/%s' % (oldname, wenjian), 'wb')
-            newwenjian.writelines(oldwenjian)
-            oldwenjian.close()
-            newwenjian.close()
-            print('%s文件复制成功' % wenjian)
+            # 如果遍历对象是文件则拷贝文件
+            if Path(old+'/'+wenjian).is_file():
+                fuzhiwenjian(old+'/'+wenjian, new+'/'+oldname)
 
-        # 如果遍历对象是文件夹则递归执行遍历
-        if Path(old+'/'+wenjian).is_dir():
-            oldlujing, newlujing = old+'/'+wenjian, new+'/'+oldname
-            fuzhi(oldlujing, newlujing)
-    return new+'/'+oldname
+            # 如果遍历对象是文件夹则递归执行遍历
+            if Path(old+'/'+wenjian).is_dir():
+                oldlujing, newlujing = old+'/'+wenjian, new+'/'+oldname
+                fuzhi(oldlujing, newlujing)
+
+        # 返回新的文件new文件路径以便递归使用
+        return new+'/'+oldname
 
 
 old = input('请输入要复制的文件：')
