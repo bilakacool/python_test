@@ -3,7 +3,9 @@
 
 # 小星星
 def xing():
-    return print('*' * 30)
+    """显示星星"""
+
+    print('*' * 30)
 
 
 # 游戏流程
@@ -331,7 +333,7 @@ def denglu():
             print('\n退出游戏')
             break
         if denglu == 2:
-            while zhuce(5) == 0:
+            while zhuce(6) == 0:
                 continue
             continue
         if denglu == 1:
@@ -386,6 +388,12 @@ def zhuce(long):
     if zhanghao in a:
         xing()
         print('此账号已存在,请重新输入')
+        return 0
+
+    # 用户名为空则需要重新输入
+    if zhanghao == ''
+        xing()
+        print('账号不可为空')
         return 0
 
     # 用户名过长时需要重新输入
