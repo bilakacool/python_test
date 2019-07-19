@@ -71,7 +71,7 @@ def fuzhi(old, new):
     if old in new or new == old:
 
         # 将old中文件复制到old同目录中,再将复制的文件复制到new中，再删除中间文件
-        newnew = old[:-(old[::-1].find('/')+1)]
+        newnew = old[:-(old.reverse.find('/')+1)]
         newold = fuzhi(old, newnew)
         oldnew = fuzhi(newold, new)
         shanchu(newold)
@@ -102,7 +102,7 @@ def fuzhi(old, new):
         return new+'/'+oldname
 
 
-old = input('请输入要复制的文件：')
-new = input('请输入要复制的位置：')
-fuzhi(old, new)
+# old = input('请输入要复制的文件：')
+# new = input('请输入要复制的位置：')
+# fuzhi(old, new)
 
