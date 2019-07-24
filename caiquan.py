@@ -74,6 +74,7 @@ def shouye():
 def bangdan(mingzi, gaofen, gaolian):
     """根据名字，得分，连胜制作榜单"""
     import os
+    import pickle
 
     # 创建本场游戏榜单列表
     bangdan = []
@@ -96,12 +97,14 @@ def bangdan(mingzi, gaofen, gaolian):
 # 对榜单中的数据进行排序
 def paixu():
     """将榜单中数据按照得分情况进行排序"""
+    import pickle
 
     # 将排行榜数据存入列表中
     bang = open('./bangdan.txt', 'r')
     id = 0
     bang2 = []
     bang3 = []
+
     for i in bang.readlines():
 
         # 将排行榜数据列表再存入大列表中
@@ -112,13 +115,14 @@ def paixu():
         else:
             bang3 = i.split('\t')
         id += 1
+    bang.close()
+
 
     # 将玩家数据列表按照分数从高到低排序
     for j in range(len(bang2)):
         for k in range(len(bang2)):
             if int(bang2[j][4][:-1]) > int(bang2[k][4][:-1]):
                 bang2[j], bang2[k] = bang2[k], bang2[j]
-    bang.close()
 
     # 将排序后的玩家数据写入游戏结果
     bang = open('./bangdan.txt', 'w')
@@ -368,30 +372,25 @@ def zhuce(long):
     import os
     xing()
 
+    # 账号存储文档不存在时创建文档
+    if 'yonghu.yonghu' not in os.listdir(os.getcwd()):
+        yong = {}
+        cunchu('yonghu', yong)
+
     # 输入用户名
     zhanghao = input('请输入注册用户名：')
 
-    # 账号存储文档不存在时创建文档
-    if 'yonghu.txt' not in os.listdir(os.getcwd()):
-        yonghu = open('yonghu.txt', 'w')
-        yonghu.close()
-
-    # 将文档中的用户名集中到一个列表中
-    yonghu = open('yonghu.txt', 'r')
-    a = []
-    for i in yonghu.readlines():
-        a.extend(i.split('\t'))
-        a = a[::2]
-    yonghu.close()
+    # 读取账号存储文档
+    yong = duqu('yonghu')
 
     # 如果用户名存在则需要重新输入
-    if zhanghao in a:
+    if zhanghao in yong.keys():
         xing()
         print('此账号已存在,请重新输入')
         return 0
 
     # 用户名为空则需要重新输入
-    if zhanghao == ''
+    if zhanghao == '':
         xing()
         print('账号不可为空')
         return 0
@@ -405,12 +404,18 @@ def zhuce(long):
     # 输入注册账号的密码
     mima = input('请输入注册密码：')
 
+    # 密码为空则需要重新输入
+    if mima == '':
+        xing()
+        print('密码不可为空')
+        return 0
+
     # 确认用户名和密码
     queren = input('注册的用户为%s,密码为%s,确认请按1：' % (zhanghao, mima))
     if queren == '1':
-        yonghu = open('yonghu.txt', 'a')
-        yonghu.write('%s\t%s\n' % (zhanghao, mima))
-        yonghu.close()
+        yong = duqu('yonghu')
+        yong[zhanghao] = mima
+        cunchu('yonghu',yong)
     else:
         xing()
         print('注册已取消')
@@ -426,17 +431,33 @@ def yonghu():
     zhanghao = input('请输入用户名：')
     mima = input('请输入密码：')
 
-    # 将用户名和密码组合成指定格式的字符串
-    a = zhanghao+'\t'+mima+'\n'
+    # 将用户名和密码组合成指定格式的元组
+    a = (zhanghao, mima)
 
     # 用户名或密码不正确判断
-    if a not in open('yonghu.txt', 'r').readlines():
+    yong = duqu('yonghu')
+    if a not in yong.items():
         return 0
     return zhanghao
 
 
+def cunchu(a,b):
+    """将b存储在a.a中"""
+    import pickle
+
+    c = open('%s.%s' % (a, a), 'wb')
+    pickle.dump(b, c)
+    c.close()
 
 
+def duqu(a):
+    """返回a中的文件"""
+    import pickle
+
+    c = open('%s.%s' % (a, a), 'rb')
+    b = pickle.load(c)
+    c.close()
+    return b
 
 
 
@@ -444,4 +465,6 @@ def yonghu():
 
 
 denglu()
+
+
 

@@ -19,7 +19,8 @@ def fuben(old, new, fuben='副本'):
     """如果new文件夹中有old文件，则将文件名返回old-fuben"""
     import os
 
-    oldname = old.split('/')[-1]
+    # oldname = old.split('/')[-1]
+    oldname = os.path.basename(old)
     while oldname in os.listdir(new):
         oldname = oldname+'-'+fuben
     return oldname
@@ -37,11 +38,13 @@ def fuzhiwenjian(old, new):
     """将文件old复制到new中"""
     import os
 
-    wenjian = old.split('/')[-1]
+    # wenjian = old.split('/')[-1]
+    wenjian = os.path.basename(old)
     if wenjian in os.listdir(new):
+        print('%s文件已存在' % wenjian)
         return
     oldwenjian = open(old, 'rb')
-    newwenjian = open(new + '/%s' % wenjian, 'wb')
+    newwenjian = open(new + '/%s' % wenjian, 'xb')
     newwenjian.writelines(oldwenjian)
     oldwenjian.close()
     newwenjian.close()
@@ -53,14 +56,14 @@ def fuzhi(old, new):
     import os
     from pathlib import Path
 
+    # 检查old和new是否存在
+    if (not os.path.isfile(old) and not os.path.isdir(old)) or (not os.path.isdir(new)):
+        print('复制的文件或复制的位置不存在')
+        return
+
     # 调整old和new的格式
     old = geshi(old)
     new = geshi(new)
-
-    # 检查old和new是否存在
-    if (not os.path.isfile(old) and not os.path.isdir(old)) or (not os.path.isdir(new) and not os.path.isfile(new)):
-        print('该文件不存在')
-        return
 
     # 如果old是文件则直接复制到new
     if Path(old).is_file():
@@ -71,7 +74,8 @@ def fuzhi(old, new):
     if old in new or new == old:
 
         # 将old中文件复制到old同目录中,再将复制的文件复制到new中，再删除中间文件
-        newnew = old[:-(old.reverse.find('/')+1)]
+        # newnew = old[:-(old.reverse.find('/')+1)]
+        newnew = os.path.dirname(old)
         newold = fuzhi(old, newnew)
         oldnew = fuzhi(newold, new)
         shanchu(newold)
@@ -102,7 +106,6 @@ def fuzhi(old, new):
         return new+'/'+oldname
 
 
-# old = input('请输入要复制的文件：')
-# new = input('请输入要复制的位置：')
-# fuzhi(old, new)
-
+old = input('请输入要复制的文件：')
+new = input('请输入要复制的位置：')
+fuzhi(old, new)
