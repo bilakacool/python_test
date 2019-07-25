@@ -1,6 +1,11 @@
 # coding=utf-8
 
 
+def xianshi(a):
+    import easygui as g
+    g.msgbox(a, '复制文件', ok_button='确认')
+
+
 def shanchu(wenjianjia):
     """递归删除一个文件夹"""
     import os
@@ -40,9 +45,11 @@ def fuzhiwenjian(old, new):
 
     # wenjian = old.split('/')[-1]
     wenjian = os.path.basename(old)
+
     if wenjian in os.listdir(new):
         print('%s文件已存在' % wenjian)
         return
+
     oldwenjian = open(old, 'rb')
     newwenjian = open(new + '/%s' % wenjian, 'xb')
     newwenjian.writelines(oldwenjian)
@@ -58,7 +65,8 @@ def fuzhi(old, new):
 
     # 检查old和new是否存在
     if (not os.path.isfile(old) and not os.path.isdir(old)) or (not os.path.isdir(new)):
-        print('复制的文件或复制的位置不存在')
+        # print('复制的文件或复制的位置不存在')
+        xianshi('复制的文件或复制的位置不存在')
         return
 
     # 调整old和new的格式
@@ -68,7 +76,7 @@ def fuzhi(old, new):
     # 如果old是文件则直接复制到new
     if Path(old).is_file():
         fuzhiwenjian(old, new)
-        return
+        return 1
 
     # 如果new在old目录中会造成死循环
     if old in new or new == old:
@@ -83,7 +91,7 @@ def fuzhi(old, new):
         # 将new中的文件名修改为old同名，如果old在new中存在则修改为副本名字
         oldname = fuben(old, new)
         os.rename(oldnew, new+'/'+oldname)
-        return
+        return 1
 
     else:
         # 在new中创建old文件夹，如果old文件夹已存在则创建副本文件夹
@@ -106,6 +114,33 @@ def fuzhi(old, new):
         return new+'/'+oldname
 
 
-old = input('请输入要复制的文件：')
-new = input('请输入要复制的位置：')
-fuzhi(old, new)
+def fu():
+    global old, new
+    import sys
+    import easygui as g
+    from tkinter.filedialog import askdirectory, askopenfilename
+
+    n = g.indexbox(msg='请选择复制文件类型', title='复制文件', choices=('复制文件夹', '复制文件'))
+
+    if n == 0:
+        g.msgbox('请选择需要复制的文件')
+        old = askdirectory()
+        g.msgbox('请选择文件复制的位置')
+        new = askdirectory()
+
+    elif n == 1:
+        g.msgbox('请选择需要复制的文件')
+        old = askopenfilename()
+        g.msgbox('请选择文件复制的位置')
+        new = askdirectory()
+    a = fuzhi(old, new)
+    if a is not None:
+        xianshi('复制完成')
+
+
+if __name__ == "__main__":
+    fu()
+
+
+
+

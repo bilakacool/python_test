@@ -460,11 +460,8 @@ def duqu(a):
     return b
 
 
-
-
-
-
-denglu()
+if __name__=='__main__':
+    denglu()
 
 
 
